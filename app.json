@@ -1,0 +1,52 @@
+{
+  "expo": {
+    "name": "Dukan",
+    "slug": "vanta-seller",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "vantaseller",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "bundleIdentifier": "com.kader95.vantaseller"
+    },
+    "android": {
+      "icon": "./assets/images/dukan-android-icon.png",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/dukan-android-icon-foreground.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "com.kader95.vantaseller"
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#FFFFFF",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200
+        }
+      ],
+      "expo-font",
+      "expo-image",
+      "expo-status-bar",
+      "expo-web-browser"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": false
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "06b1f990-4b6a-4fb9-817f-5e9a5e8d8507"
+      }
+    }
+  }
+}
