@@ -123,15 +123,17 @@ export function ItemsCard({ groups }: { groups: SellerGroupView[] }): React.JSX.
 }
 
 export function AddressBlock({ address, compact = false }: { address: Address; compact?: boolean }): React.JSX.Element {
+  const line = [address.addressLine, address.area, address.district, address.division, address.postalCode]
+    .map((s) => (typeof s === 'string' ? s.trim() : ''))
+    .filter(Boolean)
+    .join(', ');
   return (
     <View style={{ gap: 2 }}>
       <Text style={type.label}>
-        {address.label} · {address.recipientName}
+        {address.label || 'Address'} · {address.recipientName}
       </Text>
       <Text style={type.caption}>{address.phone}</Text>
-      <Text style={type.body}>
-        {address.addressLine}, {address.area}, {address.district}, {address.division} {address.postalCode}
-      </Text>
+      {line ? <Text style={type.body}>{line}</Text> : null}
       {!compact && address.instructions ? (
         <Text style={[type.caption, { marginTop: spacing.xs }]}>Note: {address.instructions}</Text>
       ) : null}

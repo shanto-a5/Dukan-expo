@@ -109,6 +109,8 @@ function mapOrderAddress(dto: OrderAddressDto | null | undefined, owner: string)
     postalCode: dto?.postalCode ?? '',
     instructions: dto?.instructions ?? undefined,
     isDefault: dto?.isDefault === true,
+    latitude: dto?.latitude ?? null,
+    longitude: dto?.longitude ?? null,
     createdAt: stamp,
     updatedAt: stamp,
   };

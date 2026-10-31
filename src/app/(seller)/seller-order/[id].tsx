@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Linking, StyleSheet, Text, View } from 'react-native';
 
+import * as Clipboard from 'expo-clipboard';
 import { router, useLocalSearchParams } from 'expo-router';
 
 import { BackButton } from '@/components/back-button';
@@ -31,6 +32,18 @@ function SellerOrderDetailScreen({ session }: { session: SessionContextValue }):
   const detail = profile && rawId ? orderService.sellerOrderDetail(profile.id, rawId) : null;
   const [error, setError] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState<string | null>(null);
+  const [copiedCoords, setCopiedCoords] = React.useState(false);
+
+  const copyCoordinates = async (coordsText: string) => {
+    await Clipboard.setStringAsync(coordsText);
+    setCopiedCoords(true);
+    setTimeout(() => setCopiedCoords(false), 2000);
+  };
+
+  const openGoogleMaps = (lat: number, lng: number) => {
+    const url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+    void Linking.openURL(url);
+  };
 
   if (!profile || !detail) {
     return (
@@ -217,6 +230,50 @@ function SellerOrderDetailScreen({ session }: { session: SessionContextValue }):
             {`${sellerOrder.carrier ?? 'Carrier'} · ${sellerOrder.trackingNumber}`}
           </Text>
         ) : null}
+      </Card>
+
+      <SectionHeader title="Customer GPS Coordinates" />
+      <Card style={{ marginBottom: spacing.lg }}>
+        {typeof sellerOrder.shippingAddress?.latitude === 'number' &&
+        typeof sellerOrder.shippingAddress?.longitude === 'number' &&
+        Number.isFinite(sellerOrder.shippingAddress.latitude) &&
+        Number.isFinite(sellerOrder.shippingAddress.longitude) ? (
+          <View style={{ gap: spacing.sm }}>
+            <SummaryRow label="Latitude" value={String(sellerOrder.shippingAddress.latitude)} />
+            <SummaryRow label="Longitude" value={String(sellerOrder.shippingAddress.longitude)} />
+            <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xs }}>
+              <View style={{ flex: 1 }}>
+                <Button
+                  title={copiedCoords ? 'Copied!' : 'Copy Coordinates'}
+                  variant="secondary"
+                  onPress={() =>
+                    void copyCoordinates(
+                      `${sellerOrder.shippingAddress.latitude}, ${sellerOrder.shippingAddress.longitude}`
+                    )
+                  }
+                  fullWidth
+                />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Button
+                  title="Open in Google Maps"
+                  variant="secondary"
+                  onPress={() =>
+                    openGoogleMaps(
+                      sellerOrder.shippingAddress.latitude as number,
+                      sellerOrder.shippingAddress.longitude as number
+                    )
+                  }
+                  fullWidth
+                />
+              </View>
+            </View>
+          </View>
+        ) : (
+          <Text style={[type.body, { color: colors.textMuted }]}>
+            GPS coordinates are not available for this order.
+          </Text>
+        )}
       </Card>
 
       <SectionHeader title="Store timeline" />

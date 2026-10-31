@@ -157,6 +157,8 @@ export interface AddressDto {
   postalCode?: string;
   instructions?: string;
   isDefault?: boolean;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 export interface SellerOrderItemDto {
@@ -419,6 +421,8 @@ function mapAddress(dto: AddressDto | null, owner: string, stamp: string): Addre
     postalCode: dto?.postalCode ?? '',
     instructions: dto?.instructions ?? '',
     isDefault: dto?.isDefault === true,
+    latitude: dto?.latitude ?? null,
+    longitude: dto?.longitude ?? null,
     createdAt: stamp,
     updatedAt: stamp,
   };
