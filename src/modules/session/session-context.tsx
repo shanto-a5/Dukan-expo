@@ -9,6 +9,7 @@ import type { User } from '@/domain/types';
 import { ensureBooted } from '@/infrastructure/bootstrap';
 import { authService } from '@/services/auth-gateway';
 import { notificationService } from '@/services/notification-service';
+import { unregisterAllPushDevices, unregisterPushDevice } from '@/services/push-notifications';
 import { listingCache } from '@/services/listing-cache';
 import { hydrateSellerWorkspace } from '@/api/remote-seller';
 
@@ -97,6 +98,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }): Re
   }, [hydrateWorkspace]);
 
   const signOut = React.useCallback(async (userId?: string): Promise<void> => {
+    await unregisterPushDevice();
     const accountId = userId ?? user?.id;
     await authService.logout(userId);
     // Purge the signed-out account's private listings so nothing from this
@@ -107,6 +109,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }): Re
   }, [user?.id]);
 
   const signOutEverywhere = React.useCallback(async (userId?: string): Promise<void> => {
+    await unregisterAllPushDevices();
     const accountId = userId ?? user?.id;
     await authService.logoutEverywhere(userId);
     if (accountId) listingCache.clearAccount(accountId);

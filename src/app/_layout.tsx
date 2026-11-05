@@ -10,6 +10,7 @@ import { useBootGate } from '@/infrastructure/bootstrap';
 import { Button, Card } from '@/components/ui';
 import { GlobalProgressLine } from '@/components/global-progress-line';
 import { spacing, colors, type } from '@/theme/tokens';
+import { PushNotificationBridge } from '@/services/push-notifications';
 
 /**
  * Vanta Seller root layout.
@@ -34,6 +35,7 @@ export default function RootLayout(): React.JSX.Element {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider initialMetrics={initialWindowMetrics}>
         <SessionProvider>
+          <PushNotificationBridge />
           <View style={{ flex: 1, backgroundColor: '#FAFAF9' }}>
             <StatusBar style="dark" />
             {boot.status === 'loading' ? (
