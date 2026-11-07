@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Dukan",
-    "slug": "vanta-seller",
+    "slug": "samrat-dukan",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -47,9 +47,13 @@
       "reactCompiler": false
     },
     "extra": {
-      "router": {},
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
       "eas": {
-        "projectId": "06b1f990-4b6a-4fb9-817f-5e9a5e8d8507"
+        "projectId": "1a9e021f-cd5e-445a-a07b-eebadd7754eb"
       }
     }
   }

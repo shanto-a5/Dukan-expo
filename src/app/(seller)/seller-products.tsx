@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 
 import { router } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
@@ -444,10 +444,15 @@ function SellerProductsScreen({ session }: { session: SessionContextValue }): Re
         </View>
       ) : null}
 
-      {!listing.loaded && !listing.error ? (
-        <View style={styles.loading}>
-          <ActivityIndicator color={colors.primary} />
-          <Text style={type.caption}>Loading your listings…</Text>
+      {!listing.loaded && products.length === 0 ? (
+        <View style={styles.loading} accessibilityLabel="Loading your listings">
+          {[0, 1, 2].map((key) => (
+            <View key={key} style={styles.productSkeleton}>
+              <View style={styles.productSkeletonImage} />
+              <View style={styles.productSkeletonText} />
+              <View style={[styles.productSkeletonText, { width: '58%' }]} />
+            </View>
+          ))}
         </View>
       ) : products.length === 0 ? (
         <EmptyState
@@ -552,7 +557,20 @@ const styles = StyleSheet.create({
   bulkHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.md },
   bulkActions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.sm },
   stockButtons: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center', paddingTop: spacing.lg },
-  loading: { alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.xl },
+  loading: { gap: spacing.md, paddingVertical: spacing.md },
+  productSkeleton: {
+    minHeight: 88,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    borderRadius: radius.md,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.md,
+  },
+  productSkeletonImage: { width: 60, height: 60, borderRadius: radius.sm, backgroundColor: colors.surfaceMuted },
+  productSkeletonText: { width: '38%', height: 12, borderRadius: radius.pill, backgroundColor: colors.surfaceMuted },
   refreshNotice: {
     flexDirection: 'row',
     alignItems: 'center',

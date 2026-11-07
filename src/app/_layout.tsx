@@ -5,12 +5,22 @@ import { ActivityIndicator, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 
-import { SessionProvider } from '@/modules/session/session-context';
+import { SessionProvider, useSession } from '@/modules/session/session-context';
 import { useBootGate } from '@/infrastructure/bootstrap';
 import { Button, Card } from '@/components/ui';
 import { GlobalProgressLine } from '@/components/global-progress-line';
 import { spacing, colors, type } from '@/theme/tokens';
 import { PushNotificationBridge } from '@/services/push-notifications';
+
+function SessionStartupGate({ children }: { children: React.ReactNode }): React.JSX.Element {
+  const { status } = useSession();
+  if (status !== 'checking') return <>{children}</>;
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.lg }}>
+      <ActivityIndicator size="large" color={colors.primary} accessibilityLabel="Restoring your session" />
+    </View>
+  );
+}
 
 /**
  * Vanta Seller root layout.
@@ -18,9 +28,10 @@ import { PushNotificationBridge } from '@/services/push-notifications';
  *  - SessionProvider wraps the router tree BEFORE any route/component can call
  *    `useSession()`. This is the single identity authority; session restore and
  *    the initial `checking` state live inside it.
- *  - The boot gate holds routes back until the persistence layer is loaded and
- *    the server catalogue mirror is installed. While the gate is closed the tree
- *    shows a labelled spinner; a rejected boot renders a retryable failure card.
+ *  - The boot gate waits only for the local database. The session gate restores
+ *    the token-matched identity before routes mount, while seller data refreshes
+ *    through the existing listing cache in the background. Failed local storage
+ *    loads still show a retryable failure card.
  *  - Route groups decide navigation: (seller), (auth). The seller group hosts the
  *    workspace dock; the root `index` screen is the app's entry point and forwards
  *    to the group the visitor is allowed to see, so the seller shell is never
@@ -54,7 +65,11 @@ export default function RootLayout(): React.JSX.Element {
                 />
               </View>
             ) : null}
-            {boot.status === 'ready' ? <Stack screenOptions={{ headerShown: false }} /> : null}
+            {boot.status === 'ready' ? (
+              <SessionStartupGate>
+                <Stack screenOptions={{ headerShown: false }} />
+              </SessionStartupGate>
+            ) : null}
             <GlobalProgressLine />
             {boot.status === 'failed' ? (
               <View
