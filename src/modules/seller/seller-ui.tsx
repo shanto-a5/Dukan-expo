@@ -193,7 +193,7 @@ export function SellerProductRow({
           <Text style={styles.checkboxGlyph}>{selected ? '✓' : ''}</Text>
         </View>
       ) : (
-        <ProductImage uri={product.images[0]} size={64} />
+        <ProductImage uri={product.images[0]} size={52} />
       )}
       <View style={styles.productRowBody}>
         <Text style={[type.label, { color: colors.text }]} numberOfLines={2}>
@@ -649,8 +649,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.lg,
-    padding: spacing.md,
-    marginBottom: spacing.md,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    marginBottom: 13,
   },
   productRowLocked: { borderColor: colors.danger, backgroundColor: colors.dangerSoft },
   productRowBody: { flex: 1, gap: 2 },

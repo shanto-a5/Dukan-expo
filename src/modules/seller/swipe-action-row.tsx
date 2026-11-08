@@ -92,6 +92,8 @@ export function SwipeActionRow({
       enabled={enabled}
       friction={2}
       rightThreshold={actionWidth * 0.5}
+      // Require an intentional leftward drag before the row competes for a swipe.
+      dragOffsetFromRight={-24}
       overshootRight={false}
       containerStyle={styles.container}
       renderRightActions={renderRightActions}
@@ -109,7 +111,7 @@ export function SwipeActionRow({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: spacing.md,
+    marginBottom: 13,
     borderRadius: radius.lg,
   },
   action: {
