@@ -115,5 +115,7 @@ export interface Store extends BaseEntity {
   freeShippingThreshold: number;
   deliveryEstimateDays: { min: number; max: number };
   location: string;
+  primaryArea?: { name: string; slug: string } | null;
+  serviceAreas?: { name: string; slug: string }[];
   verified: boolean;
 }

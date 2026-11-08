@@ -29,6 +29,8 @@ import { sellerService, type BecomeSellerInput } from '@/services/seller-service
 import { SignInGate, withSession } from '@/modules/session/route-guard';
 import type { SessionContextValue } from '@/modules/session/session-context';
 import { colors, radius, spacing, type } from '@/theme/tokens';
+import { AreaEditor } from '@/modules/seller/area-editor';
+import { vantaApi, type ServiceArea } from '@/api/vanta-api';
 import type { SellerStatus } from '@/domain/types';
 
 type Form = Omit<BecomeSellerInput, 'agreement'> & { agreement: Record<keyof BecomeSellerInput['agreement'], boolean> };
@@ -44,6 +46,8 @@ const EMPTY: Form = {
   storeDescription: '',
   storeLogo: '',
   storeBanner: '',
+  primaryArea: '',
+  serviceAreas: [],
   pickupDivision: '',
   pickupDistrict: '',
   pickupArea: '',
@@ -109,6 +113,9 @@ function SellerApplyScreen({ session }: { session: SessionContextValue }): React
   const [loading, setLoading] = React.useState(true);
   const [statusError, setStatusError] = React.useState<string | null>(null);
   const [statusAttempt, setStatusAttempt] = React.useState(0);
+  const [areaSuggestions, setAreaSuggestions] = React.useState<ServiceArea[]>([]);
+
+  React.useEffect(() => { void vantaApi.areas().then((result) => setAreaSuggestions(result.areas)).catch(() => setAreaSuggestions([])); }, []);
 
   const set = <K extends keyof Form>(key: K, value: Form[K]): void =>
     setForm((current) => ({ ...current, [key]: value }));
@@ -325,6 +332,13 @@ function SellerApplyScreen({ session }: { session: SessionContextValue }): React
           value={form.storeDescription}
           onChangeText={(v) => set('storeDescription', v)}
           error={errors.storeDescription}
+        />
+        <AreaEditor
+          primaryArea={form.primaryArea ?? ''}
+          serviceAreas={form.serviceAreas ?? []}
+          suggestions={areaSuggestions}
+          onPrimaryChange={(value) => set('primaryArea', value)}
+          onServiceAreasChange={(value) => set('serviceAreas', value)}
         />
         <Field
           label="Store logo (image URL)"

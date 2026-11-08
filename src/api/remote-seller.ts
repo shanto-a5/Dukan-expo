@@ -88,6 +88,8 @@ export interface StoreDto {
   freeShippingThreshold: number;
   deliveryEstimateDays: { min: number; max: number };
   location: string;
+  primaryArea?: { name: string; slug: string } | null;
+  serviceAreas?: { name: string; slug: string }[];
   verified: boolean;
   createdAt: string | null;
   updatedAt: string | null;
@@ -341,6 +343,8 @@ export function mapStore(dto: StoreDto): Store {
       max: dto.deliveryEstimateDays?.max ?? 4,
     },
     location: dto.location,
+    primaryArea: dto.primaryArea ?? null,
+    serviceAreas: dto.serviceAreas ?? [],
     verified: dto.verified,
     createdAt: stamp,
     updatedAt: dto.updatedAt ?? stamp,

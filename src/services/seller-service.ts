@@ -16,6 +16,8 @@ const STORE_PATCH_KEYS: (keyof Store)[] = [
   'freeShippingThreshold',
   'deliveryEstimateDays',
   'location',
+  'primaryArea',
+  'serviceAreas',
 ];
 
 export interface BecomeSellerInput {
@@ -29,6 +31,8 @@ export interface BecomeSellerInput {
   storeDescription: string;
   storeLogo: string;
   storeBanner: string;
+  primaryArea?: string | null;
+  serviceAreas?: string[];
   pickupDivision: string;
   pickupDistrict: string;
   pickupArea: string;
@@ -115,6 +119,8 @@ export class SellerService {
         storeDescription: input.storeDescription,
         storeLogo: input.storeLogo,
         storeBanner: input.storeBanner,
+        primaryArea: input.primaryArea,
+        serviceAreas: input.serviceAreas,
         pickupDivision: input.pickupDivision,
         pickupDistrict: input.pickupDistrict,
         pickupArea: input.pickupArea,

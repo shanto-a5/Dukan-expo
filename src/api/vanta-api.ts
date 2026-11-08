@@ -83,6 +83,8 @@ export interface CatalogSummary {
   categoryCount: number;
 }
 
+export interface ServiceArea { name: string; slug: string }
+
 export interface StoreSummary extends Store {
   seller: Pick<SellerProfile, 'id' | 'fullName' | 'status' | 'sellerType'>;
   productCount: number;
@@ -386,6 +388,10 @@ export class VantaApi {
     return this.client.get('/catalog/summary');
   }
 
+  areas(): Promise<{ areas: ServiceArea[] }> {
+    return this.client.get('/catalog/areas');
+  }
+
   // -------------------------------------------------------------------- cart
   cart(deliveryMethod?: 'standard' | 'express', voucher?: string): Promise<PricedCart> {
     return this.client.get('/cart', { query: { deliveryMethod, voucher } });
@@ -606,6 +612,8 @@ export class VantaApi {
     storeDescription: string;
     storeLogo?: string;
     storeBanner?: string;
+    primaryArea?: string | null;
+    serviceAreas?: string[];
     pickupDivision: string;
     pickupDistrict: string;
     pickupArea?: string;

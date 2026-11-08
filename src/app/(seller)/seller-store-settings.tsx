@@ -17,6 +17,8 @@ import { diagnosticsService } from '@/services/diagnostics-service';
 import { sellerService } from '@/services/seller-service';
 import type { Store } from '@/domain/types';
 import { colors, spacing, type } from '@/theme/tokens';
+import { AreaEditor } from '@/modules/seller/area-editor';
+import { vantaApi, type ServiceArea } from '@/api/vanta-api';
 
 interface StoreFormState {
   name: string;
@@ -26,6 +28,8 @@ interface StoreFormState {
   freeShippingThreshold: string;
   minDays: string;
   maxDays: string;
+  primaryArea: string;
+  serviceAreas: string[];
 }
 
 function initialStoreState(store: Store): StoreFormState {
@@ -37,6 +41,8 @@ function initialStoreState(store: Store): StoreFormState {
     freeShippingThreshold: String(store.freeShippingThreshold),
     minDays: String(store.deliveryEstimateDays.min),
     maxDays: String(store.deliveryEstimateDays.max),
+    primaryArea: store.primaryArea?.name ?? '',
+    serviceAreas: (store.serviceAreas ?? []).filter((area) => area.slug !== store.primaryArea?.slug).map((area) => area.name),
   };
 }
 
@@ -49,6 +55,8 @@ function SellerStoreSettingsScreen({ session }: { session: SessionContextValue }
   const [error, setError] = React.useState<string | null>(null);
   const [message, setMessage] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState<string | null>(null);
+  const [areaSuggestions, setAreaSuggestions] = React.useState<ServiceArea[]>([]);
+  React.useEffect(() => { void vantaApi.areas().then((result) => setAreaSuggestions(result.areas)).catch(() => setAreaSuggestions([])); }, []);
 
   if (!profile || !store || !state) {
     return (
@@ -94,6 +102,8 @@ function SellerStoreSettingsScreen({ session }: { session: SessionContextValue }
         shippingFee,
         freeShippingThreshold,
         deliveryEstimateDays: { min: minDays, max: maxDays },
+        primaryArea: state.primaryArea.trim() ? { name: state.primaryArea.trim(), slug: state.primaryArea.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') } : null,
+        serviceAreas: state.serviceAreas.map((name) => ({ name, slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') })),
       });
       setMessage('Store details saved.');
       refresh();
@@ -232,6 +242,13 @@ function SellerStoreSettingsScreen({ session }: { session: SessionContextValue }
             label="Location"
             placeholder="Dhaka, Dhaka"
             accessibilityLabel="Store location"
+          />
+          <AreaEditor
+            primaryArea={state.primaryArea}
+            serviceAreas={state.serviceAreas}
+            suggestions={areaSuggestions}
+            onPrimaryChange={(primaryArea) => patch({ primaryArea })}
+            onServiceAreasChange={(serviceAreas) => patch({ serviceAreas })}
           />
           <Button
             title="Save store details"
