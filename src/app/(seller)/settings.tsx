@@ -12,7 +12,10 @@ import { SellerGlyph } from '@/modules/seller/seller-ui';
 import { NoticeCard } from '@/modules/checkout/checkout-ui';
 import { notificationService } from '@/services/notification-service';
 import { sellerService } from '@/services/seller-service';
+import { vantaApi } from '@/api/vanta-api';
 import { colors, spacing, type } from '@/theme/tokens';
+
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
 function MenuRow({ label, caption, onPress }: { label: string; caption: string; onPress: () => void }): React.JSX.Element {
   return (
@@ -36,16 +39,39 @@ function MenuRow({ label, caption, onPress }: { label: string; caption: string; 
  * whole seller section reads as branded, while staying on the same row anatomy
  * as the neutral account rows.
  */
-function SellerMenuRow({ label, caption, onPress }: { label: string; caption: string; onPress: () => void }): React.JSX.Element {
+function SellerMenuRow({
+  label,
+  caption,
+  badgeDot = false,
+  onPress,
+}: {
+  label: string;
+  caption: string;
+  badgeDot?: boolean;
+  onPress: () => void;
+}): React.JSX.Element {
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${label}: ${caption}`}
+      accessibilityLabel={`${label}: ${caption}${badgeDot ? ' (New)' : ''}`}
       style={({ pressed }) => [styles.menuRow, pressed && styles.menuRowPressed]}
     >
       <View style={{ flex: 1 }}>
-        <Text style={[type.label, { color: colors.primary }]}>{label}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.xs }}>
+          <Text style={[type.label, { color: colors.primary }]}>{label}</Text>
+          {badgeDot ? (
+            <View
+              accessibilityLabel="Recent demand indicator"
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: 4,
+                backgroundColor: colors.danger,
+              }}
+            />
+          ) : null}
+        </View>
         <Text style={type.caption}>{caption}</Text>
       </View>
       <Text style={[type.caption, { color: colors.primary, fontWeight: '700' }]}>Open</Text>
@@ -57,8 +83,33 @@ export default function SettingsScreen(): React.JSX.Element {
   const { status, user, signOut, signOutEverywhere, isSeller } = useSession();
   const [busy, setBusy] = React.useState(false);
   const [signOutError, setSignOutError] = React.useState<string | null>(null);
-  useFocusRefresh();
+  const [hasRecentDiscoveries, setHasRecentDiscoveries] = React.useState(false);
+  const refreshTick = useFocusRefresh();
   const unread = status === 'signedIn' && user ? notificationService.unreadCount(user.id) : 0;
+
+  React.useEffect(() => {
+    if (status !== 'signedIn' || !isSeller) return;
+    let active = true;
+    void vantaApi
+      .sellerDiscoveries()
+      .then(({ discoveries }) => {
+        if (!active) return;
+        const now = Date.now();
+        const recent = discoveries.some((item) => {
+          const ts = new Date(item.requestedAt).getTime();
+          return Number.isFinite(ts) && now - ts <= SEVEN_DAYS_MS;
+        });
+        setHasRecentDiscoveries(recent);
+      })
+      .catch(() => {
+        if (active) setHasRecentDiscoveries(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [status, isSeller, refreshTick]);
+
+  const showRecentBadge = status === 'signedIn' && isSeller && hasRecentDiscoveries;
 
   const onSignOut = async (): Promise<void> => {
     if (!user) return;
@@ -153,6 +204,12 @@ export default function SettingsScreen(): React.JSX.Element {
                     label="Store settings"
                     caption="Store profile, delivery, payout account and visibility"
                     onPress={() => router.push('/seller-store-settings')}
+                  />
+                  <SellerMenuRow
+                    label="New Area Demands"
+                    caption="Discoveries — villages and areas where shoppers are waiting"
+                    badgeDot={showRecentBadge}
+                    onPress={() => router.push('/seller-discoveries')}
                   />
                 </View>
               </Card>

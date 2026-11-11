@@ -34,6 +34,7 @@ export default function SellerLayout(): React.JSX.Element {
           <Stack.Screen name="seller-inventory" />
           <Stack.Screen name="seller-reviews" />
           <Stack.Screen name="seller-store-settings" />
+          <Stack.Screen name="seller-discoveries" />
           <Stack.Screen name="seller-vouchers" />
           <Stack.Screen name="settings" />
           <Stack.Screen name="notifications" />

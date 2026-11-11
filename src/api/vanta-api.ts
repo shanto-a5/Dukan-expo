@@ -85,6 +85,13 @@ export interface CatalogSummary {
 
 export interface ServiceArea { name: string; slug: string }
 
+export interface AreaDiscoveryDto {
+  id: string;
+  requestedName: string;
+  slug: string;
+  requestedAt: string;
+}
+
 export interface StoreSummary extends Store {
   seller: Pick<SellerProfile, 'id' | 'fullName' | 'status' | 'sellerType'>;
   productCount: number;
@@ -736,6 +743,10 @@ export class VantaApi {
 
   toggleSellerStoreStatus(status: 'active' | 'paused'): Promise<{ store: StoreDto }> {
     return this.client.post('/seller/store/status', { status });
+  }
+
+  sellerDiscoveries(): Promise<{ discoveries: AreaDiscoveryDto[] }> {
+    return this.client.get('/seller/discoveries');
   }
 
   // ------------------------------------------------------- seller returns

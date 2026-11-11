@@ -22,6 +22,7 @@ export const PROTECTED_ROUTES = [
   '/notifications',
   '/seller-apply',
   '/seller-dashboard',
+  '/seller-discoveries',
   '/seller-inventory',
   '/seller-orders',
   '/seller-product/new',
